@@ -3,6 +3,7 @@
 
 
 AbstractSocket::AbstractSocket()
+	:m_descriptor(0)
 {
 }
 
@@ -10,3 +11,5 @@ AbstractSocket::AbstractSocket()
 AbstractSocket::~AbstractSocket()
 {
 }
+
+
