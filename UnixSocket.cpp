@@ -1,19 +1,18 @@
-#include "WinSocket.h"
-#include <winsock2.h>
-#include <Ws2tcpip.h>
+#include "UnixSocket.h"
 #include <iostream>
 
-#pragma comment (lib, "Ws2_32.lib")
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <fcntl.h>
 
 #define DEFAULT_PORT 12345
 
-WinSocket::WinSocket()
+UnixSocket::UnixSocket()
 {
 	sockaddr_in m_address;
 	m_address.sin_family = AF_INET;
 	m_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	m_address.sin_port = htons(DEFAULT_PORT);
-
 	if (!openSocket())
 		std::cout << "socket not open" << std::endl;
 	else
@@ -22,40 +21,38 @@ WinSocket::WinSocket()
 }
 
 
-WinSocket::~WinSocket()
+UnixSocket::~UnixSocket()
 {
-	WSACleanup();
 }
 
-bool WinSocket::connectToHost(const std::string & hostName, const unsigned short hostPort)
+bool UnixSocket::connectToHost(const std::string & hostName, const unsigned short hostPort)
 {
 	return false;
 }
 
-void WinSocket::disconnect()
+void UnixSocket::disconnect()
 {
-	closesocket(m_descriptor);
-	WSACleanup();
+	close(m_descriptor);
 }
 
-bool WinSocket::bindingSocket(sockaddr_in& address)
+bool UnixSocket::bindingSocket(sockaddr_in & address)
 {
 	if (bind(m_descriptor, (const sockaddr*)& address, sizeof(sockaddr_in)) < 0)
 	{
 		return false;
 		///add error handling
 	}
-	return true;
+	return false;
 }
 
-unsigned long WinSocket::readData(char* buf, unsigned long bufSize)
+unsigned long UnixSocket::readData(char * buf, unsigned long bufSize)
 {
 	int received_bytes = -1;
 	while (true)
 	{
 		unsigned char packetData[256];
 		unsigned int maximumPacketSize = sizeof(packetData);
-			   
+
 		sockaddr_in from;
 		int fromLength = sizeof(from);
 
@@ -72,7 +69,7 @@ unsigned long WinSocket::readData(char* buf, unsigned long bufSize)
 	return received_bytes;
 }
 
-unsigned long WinSocket::writeData(char* data, unsigned long dataSize)
+unsigned long UnixSocket::writeData(char * data, unsigned long dataSize)
 {
 	int sent_bytes = sendto(m_descriptor, (const char*)data, dataSize, 0, (sockaddr*)& m_address, sizeof(sockaddr_in));
 	if (sent_bytes != dataSize)
@@ -84,33 +81,21 @@ unsigned long WinSocket::writeData(char* data, unsigned long dataSize)
 	return true;
 }
 
-int WinSocket::init()
+
+bool UnixSocket::setNonBlockingMode()
 {
-	WSADATA wsaData;
-	if (FAILED(WSAStartup(MAKEWORD(2, 2), &wsaData)))
+	int nonBlocking = 1;
+	if (fcntl(m_descriptor, F_SETFL, O_NONBLOCK, nonBlocking) == -1)
 	{
 		return false;
-		///add error handling
 	}
-	return true;
+	return false;
 }
 
-bool WinSocket::setNonBlockingMode()
+bool UnixSocket::openSocket()
 {
-	DWORD nonBlocking = 1;
-	if (ioctlsocket(m_descriptor, FIONBIO, &nonBlocking) != 0)
-	{
-		return false;
-		///add error handling
-	}
-	return true;
-}
-
-bool WinSocket::openSocket()
-{
-	init();
 	m_descriptor = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if ((m_descriptor == INVALID_SOCKET) || (!bindingSocket(*m_address)) || (!setNonBlockingMode()))
+	if ((m_descriptor < 0) || (!bindingSocket(*m_address)) || (!setNonBlockingMode()))
 	{
 		return false;
 		///add error handing open socket
