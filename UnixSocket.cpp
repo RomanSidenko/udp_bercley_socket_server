@@ -1,9 +1,11 @@
 #include "UnixSocket.h"
 #include <iostream>
 
+
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <fcntl.h>
+
 
 #define DEFAULT_PORT 12345
 
@@ -23,6 +25,7 @@ UnixSocket::UnixSocket()
 
 UnixSocket::~UnixSocket()
 {
+	disconnect();
 }
 
 bool UnixSocket::connectToHost(const std::string & hostName, const unsigned short hostPort)
@@ -69,7 +72,7 @@ unsigned long UnixSocket::readData(char * buf, unsigned long bufSize)
 	return received_bytes;
 }
 
-unsigned long UnixSocket::writeData(char * data, unsigned long dataSize)
+bool UnixSocket::writeData(char * data, unsigned long dataSize)
 {
 	int sent_bytes = sendto(m_descriptor, (const char*)data, dataSize, 0, (sockaddr*)& m_address, sizeof(sockaddr_in));
 	if (sent_bytes != dataSize)

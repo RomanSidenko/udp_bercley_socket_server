@@ -24,7 +24,7 @@ WinSocket::WinSocket()
 
 WinSocket::~WinSocket()
 {
-	WSACleanup();
+	disconnect();
 }
 
 bool WinSocket::connectToHost(const std::string & hostName, const unsigned short hostPort)
@@ -72,7 +72,7 @@ unsigned long WinSocket::readData(char* buf, unsigned long bufSize)
 	return received_bytes;
 }
 
-unsigned long WinSocket::writeData(char* data, unsigned long dataSize)
+bool WinSocket::writeData(char* data, unsigned long dataSize)
 {
 	int sent_bytes = sendto(m_descriptor, (const char*)data, dataSize, 0, (sockaddr*)& m_address, sizeof(sockaddr_in));
 	if (sent_bytes != dataSize)
