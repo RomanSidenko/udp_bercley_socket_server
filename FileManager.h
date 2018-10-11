@@ -3,7 +3,6 @@
 #include <string>
 #include <stdio.h>
 
-#define DEFAULT_BUFFER_SIZE 1024
 
 class FileManager
 {
@@ -11,16 +10,24 @@ public:
 	FileManager();
 	~FileManager();
 
-	unsigned char fileName();
+	char getFileName() const;
+	void setFileName(const char* fileName);
 	bool readFile(const char* fileName);
+	bool formBuffer();
+	unsigned long getFileSize();
+	char* getBuffer() const;
+
 
 
 
 private:
 	char m_fileName;
-	unsigned char m_buferedFile[DEFAULT_BUFFER_SIZE];
 	unsigned long m_fileSize;
-	FILE *m_in;
+	char* m_buffer;
+	FILE* m_in;
+
+	bool allocMemoryForBuff(char* buffer, unsigned long fileSize);
+	
 };
 
 #endif  //FILEMANAGER
