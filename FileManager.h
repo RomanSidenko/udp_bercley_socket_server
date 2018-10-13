@@ -1,32 +1,34 @@
 #ifndef FILEMANAGER_H
 #define FILEMANAGER_H
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 
 
+//#define DEFULT_FILE_NAME_SIZE 50
 class FileManager
 {
 public:
 	FileManager();
 	~FileManager();
 
-	char getFileName() const;
-	void setFileName(const char* fileName);
-	bool readFile(const char* fileName);
-	bool formBuffer();
+	std::string getFileName() const;
+	
+	bool readFile(std::string& fileName);
+	bool writeFile(char* buffer, std::string fileName);
 	unsigned long getFileSize();
 	char* getBuffer() const;
-
-
-
+	
 
 private:
-	char m_fileName;
+	std::string m_fileName;
 	unsigned long m_fileSize;
 	char* m_buffer;
 	FILE* m_in;
+	FILE* m_out;
 
 	bool allocMemoryForBuff(char* buffer, unsigned long fileSize);
+	bool formBuffer();
+	void setFileName(std::string& fileName);
 	
 };
 

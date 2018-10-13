@@ -1,42 +1,71 @@
 #include "FileManager.h"
 #include <iostream>
 
+#define DEFOULT_FILE_NAME ""
 
 FileManager::FileManager()
+	: m_fileName()
+	, m_fileSize(0)
+	, m_buffer(nullptr)
+	, m_in(nullptr)
+	, m_out(nullptr)
 {
-	allocMemoryForBuff(m_buffer, getFileSize());
+	
 }
 
 
 FileManager::~FileManager()
 {
-	delete m_buffer;
+	delete[] m_buffer;
 }
 
-char FileManager::getFileName() const
+std::string FileManager::getFileName() const
 {
 	return m_fileName;
 }
 
-void FileManager::setFileName(const char * fileName)
+void FileManager::setFileName(std::string& fileName)
 {
-	m_fileName = *fileName;
+	m_fileName = fileName;
 }
 
-bool FileManager::readFile(const char* fileName)
+bool FileManager::readFile(std::string& fileName)
 {
-	if ((m_in = fopen(fileName, "rb")) == NULL)
+	const char* array = fileName.c_str();
+	if ((m_in = fopen(array, "rb")) == NULL)
 	{
 		std::cout << "File is not open" << std::endl;
 		return false;
 	}
 	setFileName(fileName);
+	getFileSize();
+	if (!formBuffer())
+	{
+		std::cout << "Buffer not formed" << std::endl;
+		return false;
+
+	}
+	return true;
+}
+
+bool FileManager::writeFile(char* buffer, std::string fileName = std::string())
+{
+	if (fileName.empty() && !m_fileName.empty())
+		fileName = m_fileName;
+	const char* array = fileName.c_str();
+	m_out = fopen(array, "wb");
+	size_t bufferSize = sizeof(buffer);
+	size_t outPutSize = fwrite(buffer, 1, bufferSize, m_out);
+	fclose(m_out);
+	if(bufferSize != outPutSize)
+		return false;
 	return true;
 }
 
 bool FileManager::formBuffer()
 {
 	size_t sizeRead;
+	allocMemoryForBuff(m_buffer, m_fileSize);
 	while (!feof(m_in))
 	{
 		sizeRead = fread(m_buffer, 1, sizeof(m_buffer), m_in);
@@ -51,9 +80,9 @@ bool FileManager::formBuffer()
 
 unsigned long FileManager::getFileSize()
 {
-	fseek(m_in, 0, SEEK_END);							// устанавливаем позицию в конец файла
-	m_fileSize = ftell(m_in);                           // получаем размер в байтах
-	rewind(m_in);										// устанавливаем указатель в конец файла
+	fseek(m_in, 0, SEEK_END);							// set the position to the end of the file
+	m_fileSize = ftell(m_in);                           // get the size in bytes
+	rewind(m_in);										// set the internal file position indicator to the beginning of the file.
 	return m_fileSize;
 }
 
@@ -64,7 +93,8 @@ char * FileManager::getBuffer() const
 
 bool FileManager::allocMemoryForBuff(char * buffer, unsigned long fileSize)
 {
-	m_buffer = (char*)malloc(sizeof(char) * m_fileSize);
+	m_buffer = new char[fileSize];  ///char[fileSize+1] ??????
+	//m_buffer = (char*)malloc(sizeof(char) * m_fileSize);   //c style
 	if (m_buffer == NULL)
 	{
 		std::cout << "Memory malloc for bufer error" << std::endl;

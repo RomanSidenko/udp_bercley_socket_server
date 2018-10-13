@@ -48,7 +48,7 @@ bool UnixSocket::bindingSocket(sockaddr_in & address)
 	return false;
 }
 
-unsigned long UnixSocket::readData(char * buf, unsigned long bufSize)
+unsigned long UnixSocket::readData(char* buf, unsigned long bufSize)
 {
 	int received_bytes = -1;
 	while (true)

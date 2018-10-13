@@ -33,7 +33,7 @@ void Socket::disconnect()
 	m_socket->disconnect();
 }
 
-unsigned long Socket::readData(char * buf, unsigned long bufSize)
+unsigned long Socket::readData(char* buf, unsigned long bufSize)
 {
 	return m_socket->readData(buf, bufSize);
 }

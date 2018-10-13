@@ -51,24 +51,23 @@ bool WinSocket::bindingSocket(sockaddr_in& address)
 unsigned long WinSocket::readData(char* buf, unsigned long bufSize)
 {
 	int received_bytes = -1;
+	unsigned int maximumPacketSize = sizeof(buf);
+
+	sockaddr_in from;
+	int fromLength = sizeof(from);
+
 	while (true)
 	{
-		unsigned char packetData[256];
-		unsigned int maximumPacketSize = sizeof(packetData);
-			   
-		sockaddr_in from;
-		int fromLength = sizeof(from);
-
-		received_bytes = recvfrom(m_descriptor, (char*)packetData, maximumPacketSize, 0, (sockaddr*)&from, &fromLength);
+		
+		received_bytes = recvfrom(m_descriptor, buf, maximumPacketSize, 0, (sockaddr*)&from, &fromLength);
 
 		if (received_bytes <= 0)
 			break;
 		else
-			std::cout << "packet" << packetData;
-
-		unsigned int fromAddress = ntohl(from.sin_addr.s_addr);
-		unsigned int fromPort = ntohs(from.sin_port);
+			std::cout << "packet" << buf;
 	}
+	//unsigned int fromAddress = ntohl(from.sin_addr.s_addr);
+	//unsigned int fromPort = ntohs(from.sin_port);
 	return received_bytes;
 }
 
