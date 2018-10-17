@@ -2,6 +2,7 @@
 #define FILEMANAGER_H
 #include <string>
 #include <cstdio>
+#include <vector>
 
 
 //#define DEFULT_FILE_NAME_SIZE 50
@@ -15,6 +16,7 @@ public:
 	
 	bool readFile(std::string& fileName);
 	bool writeFile(char* buffer, std::string fileName);
+	bool writeFile(std::vector<char> data, std::string filename);
 	unsigned long getFileSize();
 	char* getBuffer() const;
 	

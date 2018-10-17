@@ -52,12 +52,26 @@ bool FileManager::writeFile(char* buffer, std::string fileName = std::string())
 {
 	if (fileName.empty() && !m_fileName.empty())
 		fileName = m_fileName;
-	const char* array = fileName.c_str();
-	m_out = fopen(array, "wb");
+	const char* name = fileName.c_str();
+	m_out = fopen(name, "wb");
 	size_t bufferSize = sizeof(buffer);
 	size_t outPutSize = fwrite(buffer, 1, bufferSize, m_out);
 	fclose(m_out);
 	if(bufferSize != outPutSize)
+		return false;
+	return true;
+}
+
+bool FileManager::writeFile(std::vector<char> data, std::string fileName = std::string())
+{
+	if (fileName.empty() && !m_fileName.empty())
+		fileName = m_fileName;
+	const char* name = fileName.c_str();
+	m_out = fopen(name, "wb");
+	size_t bufferSize = sizeof(data);
+	size_t outPutSize = fwrite(data.data(), sizeof data[0], bufferSize, m_out);
+	fclose(m_out);
+	if (bufferSize != outPutSize)
 		return false;
 	return true;
 }
