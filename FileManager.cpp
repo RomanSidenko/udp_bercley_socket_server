@@ -1,7 +1,7 @@
 #include "FileManager.h"
 #include <iostream>
 
-#define DEFOULT_FILE_NAME ""
+#define DEFAULT_FILE_NAME "reciveFile.txt"
 
 FileManager::FileManager()
 	: m_fileName()
@@ -52,6 +52,8 @@ bool FileManager::writeFile(char* buffer, std::string fileName = std::string())
 {
 	if (fileName.empty() && !m_fileName.empty())
 		fileName = m_fileName;
+	else
+		fileName = DEFAULT_FILE_NAME;
 	const char* name = fileName.c_str();
 	m_out = fopen(name, "wb");
 	size_t bufferSize = sizeof(buffer);
@@ -66,6 +68,8 @@ bool FileManager::writeFile(std::vector<char> data, std::string fileName = std::
 {
 	if (fileName.empty() && !m_fileName.empty())
 		fileName = m_fileName;
+	else
+		fileName = DEFAULT_FILE_NAME;
 	const char* name = fileName.c_str();
 	m_out = fopen(name, "wb");
 	size_t bufferSize = sizeof(data);
