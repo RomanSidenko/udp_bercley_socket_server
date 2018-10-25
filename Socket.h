@@ -14,8 +14,8 @@ public:
 	bool connectToHost(const std::string& hostName, const unsigned short hostPort);
 	void disconnect();
 	
-	unsigned long readData(char* buf, unsigned long bufSize);
-	bool writeData(char* data, unsigned long dataSize);
+	unsigned long readData(char* buf, size_t bufferSize);
+	bool writeData(char* data, size_t bufferSize);
 
 private:
 	AbstractSocket* m_socket;

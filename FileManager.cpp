@@ -1,22 +1,20 @@
 #include "FileManager.h"
 #include <iostream>
 
-#define DEFAULT_FILE_NAME "reciveFile.txt"
 
 FileManager::FileManager()
 	: m_fileName()
 	, m_fileSize(0)
-	, m_buffer(nullptr)
-	, m_in(nullptr)
-	, m_out(nullptr)
+	, m_bufferSize(0)
+	, m_pos(0)
 {
 	
 }
 
-
 FileManager::~FileManager()
 {
-	delete[] m_buffer;
+	closeStream();
+	
 }
 
 std::string FileManager::getFileName() const
@@ -29,22 +27,31 @@ void FileManager::setFileName(std::string& fileName)
 	m_fileName = fileName;
 }
 
+void FileManager::setBufferSize(size_t size)
+{
+	m_bufferSize = size;
+}
+
 bool FileManager::readFile(std::string& fileName)
 {
-	const char* array = fileName.c_str();
-	if ((m_in = fopen(array, "rb")) == NULL)
+	try
 	{
-		std::cout << "File is not open" << std::endl;
-		return false;
+		m_in.open(fileName, std::ios::binary);
+		if (!m_in.is_open())
+			std::cout << "File is not open" << std::endl;
+		else
+		{
+			m_fileSize = m_in.seekg(0, std::ios::end).tellg();
+			m_in.seekg(0, std::ios::beg);
+			setFileName(fileName);
+		}
 	}
-	setFileName(fileName);
-	getFileSize();
-	if (!formBuffer())
+	catch (const std::exception& error)
 	{
-		std::cout << "Buffer not formed" << std::endl;
-		return false;
+		std::cerr << error.what() << std::endl;
+		return (EXIT_FAILURE);
+	}
 
-	}
 	return true;
 }
 
@@ -52,71 +59,66 @@ bool FileManager::writeFile(char* buffer, std::string fileName = std::string())
 {
 	if (fileName.empty() && !m_fileName.empty())
 		fileName = m_fileName;
-	else
-		fileName = DEFAULT_FILE_NAME;
-	const char* name = fileName.c_str();
-	m_out = fopen(name, "wb");
-	size_t bufferSize = sizeof(buffer);
-	size_t outPutSize = fwrite(buffer, 1, bufferSize, m_out);
-	fclose(m_out);
-	if(bufferSize != outPutSize)
-		return false;
-	return true;
-}
-
-bool FileManager::writeFile(std::vector<char> data, std::string fileName = std::string())
-{
-	if (fileName.empty() && !m_fileName.empty())
-		fileName = m_fileName;
-	else
-		fileName = DEFAULT_FILE_NAME;
-	const char* name = fileName.c_str();
-	m_out = fopen(name, "wb");
-	size_t bufferSize = sizeof(data);
-	size_t outPutSize = fwrite(data.data(), sizeof data[0], bufferSize, m_out);
-	fclose(m_out);
-	if (bufferSize != outPutSize)
-		return false;
-	return true;
-}
-
-bool FileManager::formBuffer()
-{
-	size_t sizeRead;
-	allocMemoryForBuff(m_buffer, m_fileSize);
-	while (!feof(m_in))
+	if (!m_out.is_open())
 	{
-		sizeRead = fread(m_buffer, 1, sizeof(m_buffer), m_in);
+		m_out.open(fileName, std::ios::binary);
+		if (!m_out.is_open())
+			std::cout << "File is not open" << std::endl;
+		else
+		{
+			m_out.write(buffer, sizeof(buffer));
+			m_pos += sizeof(buffer);
+		}
 	}
-	if (sizeRead <= 0 || sizeRead != m_fileSize)
+	else
 	{
-		///error
-		return false;
+		m_out.write(buffer, sizeof(buffer));
+		m_pos += sizeof(buffer);
 	}
+		
+	/*if (sizeof(buffer) != 1024)
+	{
+		m_out.close();
+		return false;
+	}*/
 	return true;
 }
 
-unsigned long FileManager::getFileSize()
+std::streamsize FileManager::getFileSize()
 {
-	fseek(m_in, 0, SEEK_END);							// set the position to the end of the file
-	m_fileSize = ftell(m_in);                           // get the size in bytes
-	rewind(m_in);										// set the internal file position indicator to the beginning of the file.
 	return m_fileSize;
 }
 
-char * FileManager::getBuffer() const
+
+
+size_t FileManager::getBufferSize() const
 {
-	return m_buffer;
+	return m_bufferSize;
 }
 
-bool FileManager::allocMemoryForBuff(char * buffer, unsigned long fileSize)
+std::streampos FileManager::getPos()
 {
-	m_buffer = new char[fileSize];  ///char[fileSize+1] ??????
-	//m_buffer = (char*)malloc(sizeof(char) * m_fileSize);   //c style
-	if (m_buffer == NULL)
-	{
-		std::cout << "Memory malloc for bufer error" << std::endl;
-		return false;
-	}
-	return true;
+	return m_pos;
 }
+
+void FileManager::closeStream()
+{
+	m_in.close();
+}
+
+char * FileManager::getBuffer()
+{
+	char buffer[1024];
+	memset(&buffer, 0, sizeof(buffer));
+	m_in.read(buffer, sizeof(buffer));
+	if (m_in.eof())
+		setBufferSize(std::abs(m_pos - m_fileSize));
+	else
+	{
+		m_pos = m_in.tellg();
+		m_in.seekg(m_pos);
+		setBufferSize(sizeof(buffer));
+	}
+	return buffer;
+}
+
