@@ -2,6 +2,7 @@
 #include <winsock2.h>
 #include <Ws2tcpip.h>
 #include <iostream>
+#include <cstdlib>
 
 #pragma comment (lib, "Ws2_32.lib")
 
@@ -56,16 +57,11 @@ unsigned long WinSocket::readData(char* buf, size_t bufferSize)
 
 	while (true)
 	{
-		if (ch == 258)
-			std::cout << ch << std::endl;
 		receivedBytes = recvfrom(m_descriptor, buf, static_cast<int>(bufferSize), 0, (sockaddr*)&from, &fromLength);
-
 		if (receivedBytes <= 0)
 			break;
 		else
 		{
-			ch++;
-		
 			std::cout << ch << std::endl;
 			std::cout << "size" << bufferSize << std::endl;
 			break;
@@ -87,6 +83,34 @@ bool WinSocket::writeData(char* data, size_t bufferSize)
 		///add error handling
 	}
 	return true;
+}
+
+bool WinSocket::sendCommand(uint8_t command)
+{
+	char commBuffer[8];
+	_itoa(command, commBuffer, 10);
+	sockaddr_in m_address;
+	m_address.sin_family = AF_INET;
+	m_address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+	m_address.sin_port = htons(DEFAULT_PORT);
+	int sent_bytes = sendto(m_descriptor, commBuffer, sizeof(commBuffer), 0, (sockaddr*)& m_address, sizeof(sockaddr_in));
+	if (sent_bytes != sizeof(commBuffer))
+	{
+		std::cout << "failed to send command" << WSAGetLastError() << std::endl;
+		disconnect();
+		return false;
+	}
+	return true;
+}
+
+int WinSocket::reciveCommand(char* commandBuffer)
+{
+	int receivedBytes = -1;
+	sockaddr_in from;
+	int fromLength = static_cast<int>(sizeof(from));
+
+	receivedBytes = recvfrom(m_descriptor, commandBuffer, strlen(commandBuffer) /*its size is 8 bytes sizeof(int8_t)*/, 0, (sockaddr*)&from, &fromLength);
+	return receivedBytes;
 }
 
 int WinSocket::init()

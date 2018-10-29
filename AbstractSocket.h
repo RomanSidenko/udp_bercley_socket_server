@@ -6,14 +6,25 @@
 class sockaddr_in;
 class AbstractSocket
 {
+	
+
 public:
 	AbstractSocket();
 	virtual ~AbstractSocket();
 	
+	enum Commands
+	{
+		comReciveTitle = 0,
+		comReciveSize,
+		comResiveFile
+	};
+
 	virtual bool connectToHost(const std::string& hostName, const unsigned short hostPort) = 0;
 	virtual void disconnect() = 0;
 	virtual unsigned long readData(char* buf, size_t bufferSize) = 0;
 	virtual bool writeData(char* data, size_t bufferSize) = 0;
+	virtual bool sendCommand(uint8_t command) = 0;
+	virtual int reciveCommand(char* commandBuffer) = 0;
 
 	
 

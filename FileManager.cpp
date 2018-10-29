@@ -22,7 +22,12 @@ std::string FileManager::getFileName() const
 	return m_fileName;
 }
 
-void FileManager::setFileName(std::string& fileName)
+size_t FileManager::getFileNameSize() const
+{
+	return m_fileNameSize;
+}
+
+void FileManager::setFileName(char* fileName)
 {
 	m_fileName = fileName;
 }
@@ -43,7 +48,7 @@ bool FileManager::readFile(std::string& fileName)
 		{
 			m_fileSize = m_in.seekg(0, std::ios::end).tellg();
 			m_in.seekg(0, std::ios::beg);
-			setFileName(fileName);
+			setFileName(const_cast<char*>(fileName.c_str()));   ///REFACTOR 
 		}
 	}
 	catch (const std::exception& error)
@@ -84,16 +89,24 @@ bool FileManager::writeFile(char* buffer, std::string fileName = std::string())
 	return true;
 }
 
-std::streamsize FileManager::getFileSize()
+size_t FileManager::getFileSize()
 {
 	return m_fileSize;
 }
 
-
+void FileManager::setFileSize(size_t fileSize)
+{
+	m_fileSize = fileSize;
+}
 
 size_t FileManager::getBufferSize() const
 {
 	return m_bufferSize;
+}
+
+void FileManager::setFileNameSize(size_t fileNameSize)
+{
+	m_fileNameSize = fileNameSize;
 }
 
 std::streampos FileManager::getPos()
@@ -106,13 +119,13 @@ void FileManager::closeStream()
 	m_in.close();
 }
 
-char * FileManager::getBuffer()
+char* FileManager::getBuffer()
 {
 	char buffer[1024];
 	memset(&buffer, 0, sizeof(buffer));
 	m_in.read(buffer, sizeof(buffer));
 	if (m_in.eof())
-		setBufferSize(std::abs(m_pos - m_fileSize));
+		setBufferSize(std::abs(m_pos - static_cast<std::streamsize>(m_fileSize)));
 	else
 	{
 		m_pos = m_in.tellg();

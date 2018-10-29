@@ -6,16 +6,29 @@
 
 class FileManager
 {
+	
 public:
 	FileManager();
 	~FileManager();
+
+	enum Commands
+	{
+		comReciveFileName = 0,
+		comReciveFileNameSize,
+		comReciveFileSize,
+		comResiveFile
+	};
 
 	std::string getFileName() const;
 
 	bool readFile(std::string& fileName);
 	bool writeFile(char* buffer, std::string fileName);
-	std::streamsize getFileSize();
+	size_t getFileSize();
+	void setFileSize(size_t fileSize);
 	size_t getBufferSize() const;
+	void setFileNameSize(size_t fileNameSize);
+	size_t getFileNameSize() const;
+	void setFileName(char* fileName);
 	char* getBuffer();
 	std::streampos getPos();
 	void closeStream();
@@ -23,12 +36,13 @@ public:
 
 private:
 	std::string m_fileName;
-	std::streamsize m_fileSize;
+	size_t m_fileSize;
 	size_t m_bufferSize;
+	size_t m_fileNameSize;
 	std::streampos m_pos;
 	std::ifstream m_in;
 	std::ofstream m_out;
-	void setFileName(std::string& fileName);
+	
 	void setBufferSize(size_t size);
 
 };

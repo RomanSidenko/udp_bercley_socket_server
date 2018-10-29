@@ -4,6 +4,7 @@
 
 class WinSocket :public AbstractSocket
 {
+	
 public:
 
 	explicit WinSocket();
@@ -13,6 +14,8 @@ public:
 	void disconnect() override;
 	unsigned long readData(char* buf, size_t bufferSize) override;
 	bool writeData(char* data, size_t bufferSize) override;
+	bool sendCommand(uint8_t command) override;
+	int reciveCommand(char* commandBuffer) override;
 
 private:
 	int init();

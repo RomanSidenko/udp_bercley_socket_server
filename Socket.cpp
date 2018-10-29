@@ -38,8 +38,18 @@ unsigned long Socket::readData(char* buf, size_t bufferSize)
 	return m_socket->readData(buf, bufferSize);
 }
 
-bool Socket::writeData(char * data, size_t bufferSize)
+bool Socket::writeData(char* data, size_t bufferSize)
 {
 	return m_socket->writeData(data, bufferSize);
+}
+
+bool Socket::sendCommand(uint8_t command)
+{
+	return m_socket->sendCommand(command);
+}
+
+int Socket::reciveCommand(char* commandBuffer)
+{
+	return m_socket->reciveCommand(commandBuffer);
 }
 
