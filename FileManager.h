@@ -23,12 +23,13 @@ public:
 
 	bool readFile(std::string& fileName);
 	bool writeFile(char* buffer, std::string fileName);
-	size_t getFileSize();
+	size_t getFileSize() const;
 	void setFileSize(size_t fileSize);
 	size_t getBufferSize() const;
 	void setFileNameSize(size_t fileNameSize);
 	size_t getFileNameSize() const;
 	void setFileName(char* fileName);
+	void setFileName(std::string& fileName);
 	char* getBuffer();
 	std::streampos getPos();
 	void closeStream();

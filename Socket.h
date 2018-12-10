@@ -21,8 +21,6 @@ public:
 
 private:
 	AbstractSocket* m_socket;
-	void setBufferSize(unsigned long bufSize);
-	unsigned long getBuferSize();
 	
 };
 #endif  //SOCKET_H

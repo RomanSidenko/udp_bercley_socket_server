@@ -29,6 +29,11 @@ size_t FileManager::getFileNameSize() const
 
 void FileManager::setFileName(char* fileName)
 {
+	m_fileName = "D:\\pic2.rar";
+}
+
+void FileManager::setFileName(std::string & fileName)
+{
 	m_fileName = fileName;
 }
 
@@ -48,13 +53,14 @@ bool FileManager::readFile(std::string& fileName)
 		{
 			m_fileSize = m_in.seekg(0, std::ios::end).tellg();
 			m_in.seekg(0, std::ios::beg);
-			setFileName(const_cast<char*>(fileName.c_str()));   ///REFACTOR 
+			//setFileName(const_cast<char*>(fileName.c_str()));   ///REFACTOR 
+			setFileName(fileName);
 		}
 	}
 	catch (const std::exception& error)
 	{
 		std::cerr << error.what() << std::endl;
-		return (EXIT_FAILURE);
+		return false;
 	}
 
 	return true;
@@ -68,7 +74,10 @@ bool FileManager::writeFile(char* buffer, std::string fileName = std::string())
 	{
 		m_out.open(fileName, std::ios::binary);
 		if (!m_out.is_open())
+		{
 			std::cout << "File is not open" << std::endl;
+			return false;
+		}	
 		else
 		{
 			m_out.write(buffer, sizeof(buffer));
@@ -89,7 +98,7 @@ bool FileManager::writeFile(char* buffer, std::string fileName = std::string())
 	return true;
 }
 
-size_t FileManager::getFileSize()
+size_t FileManager::getFileSize() const
 {
 	return m_fileSize;
 }

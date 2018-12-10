@@ -22,6 +22,7 @@ private:
 	bool setNonBlockingMode();
 	bool openSocket(sockaddr_in& address) override;
 	bool bindingSocket(sockaddr_in& address) override;
+	int m_counter;
 	
 	
 	

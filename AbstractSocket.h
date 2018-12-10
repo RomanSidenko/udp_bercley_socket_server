@@ -12,13 +12,6 @@ public:
 	AbstractSocket();
 	virtual ~AbstractSocket();
 	
-	enum Commands
-	{
-		comReciveTitle = 0,
-		comReciveSize,
-		comResiveFile
-	};
-
 	virtual bool connectToHost(const std::string& hostName, const unsigned short hostPort) = 0;
 	virtual void disconnect() = 0;
 	virtual unsigned long readData(char* buf, size_t bufferSize) = 0;

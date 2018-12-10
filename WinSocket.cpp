@@ -58,15 +58,8 @@ unsigned long WinSocket::readData(char* buf, size_t bufferSize)
 	while (true)
 	{
 		receivedBytes = recvfrom(m_descriptor, buf, static_cast<int>(bufferSize), 0, (sockaddr*)&from, &fromLength);
-		if (receivedBytes <= 0)
-			break;
-		else
-		{
-			std::cout << ch << std::endl;
-			std::cout << "size" << bufferSize << std::endl;
-			break;
-		}
-			
+		std::cout << "ResivePacket #: " << m_counter++<<" Size packet: "<< receivedBytes << std::endl;
+		break;		
 	}
 	//unsigned int fromAddress = ntohl(from.sin_addr.s_addr);
 	//unsigned int fromPort = ntohs(from.sin_port);
@@ -109,7 +102,7 @@ int WinSocket::reciveCommand(char* commandBuffer)
 	sockaddr_in from;
 	int fromLength = static_cast<int>(sizeof(from));
 
-	receivedBytes = recvfrom(m_descriptor, commandBuffer, strlen(commandBuffer) /*its size is 8 bytes sizeof(int8_t)*/, 0, (sockaddr*)&from, &fromLength);
+	receivedBytes = recvfrom(m_descriptor, commandBuffer, 8/*strlen(commandBuffer) its size is 8 bytes sizeof(int8_t)*/, 0, (sockaddr*)&from, &fromLength);
 	return receivedBytes;
 }
 
